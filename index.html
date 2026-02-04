@@ -1,0 +1,501 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CosmoCamera — Мир сквозь стекло</title>
+    <style>
+        :root {
+            --accent-cyan: #00f2ff;
+            --accent-red: #ff4444;
+            --text-main: #e0fbfc;
+            /* Цвета стекла (полупрозрачные версии акцентов) */
+            --glass-cyan: rgba(0, 242, 255, 0.15);
+            --glass-red: rgba(255, 68, 68, 0.2);
+            --glass-gray: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            margin: 0;
+            padding: 40px 15px;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            color: var(--text-main);
+            min-height: 100vh;
+            /* Переливающийся фон */
+            background: linear-gradient(180deg, #000000 0%, #041a1b 50%, #0a3d40 100%);
+            background-size: 100% 200%;
+            animation: gradientMove 10s ease infinite;
+            text-align: center;
+        }
+
+        @keyframes gradientMove {
+            0% { background-position: 50% 0%; }
+            50% { background-position: 50% 100%; }
+            100% { background-position: 50% 0%; }
+        }
+
+        h1 {
+            /* Адаптивный размер шрифта, чтобы влезало на мобильные */
+            font-size: clamp(1.8em, 10vw, 4em);
+            margin-bottom: 10px;
+            font-weight: 900;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            background: linear-gradient(to bottom, #fff, var(--accent-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 10px rgba(0, 242, 255, 0.5));
+        }
+
+        h2 {
+            margin-top: 50px;
+            margin-bottom: 25px;
+            font-weight: 300;
+            font-size: 1.4em;
+            letter-spacing: 2px;
+            opacity: 0.8;
+        }
+
+        .camera-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .camera {
+            position: relative;
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-radius: 15px;
+            padding: 18px 25px;
+            transition: all 0.3s ease;
+            border: none; /* Убираем обводку */
+        }
+
+        /* Стили кнопок без обводки (цвет стекла = цвет акцента) */
+        .camera.controlled {
+            background-color: var(--glass-red);
+        }
+        
+        .camera.normal {
+            background-color: var(--glass-cyan);
+        }
+
+        .camera.refreshing {
+            background-color: var(--glass-gray);
+        }
+
+        /* Эффект при наведении */
+        .camera:hover {
+            transform: translateY(-3px);
+            filter: brightness(1.2);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+        }
+
+        .camera a {
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            font-size: 1.1em;
+            font-weight: 600;
+            width: 100%;
+        }
+
+        .flag {
+            width: 28px;
+            height: 18px;
+            margin-right: 15px;
+            border-radius: 3px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            flex-shrink: 0;
+        }
+
+        /* Плавное появление контента */
+        .camera-list {
+            animation: fadeIn 1s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+    </style>
+</head>
+<body>
+
+    <h1>CosmoCamera</h1>
+
+    <h2>Управляемые</h2>
+    <div class="camera-list">
+        <div class="camera controlled">
+    <a href="http://72.52.116.27/view/viewer_index.shtml?id=44000" target="_blank">
+        <img src="https://upload.wikimedia.org/wikipedia/en/a/a4/Flag_of_the_United_States.svg" class="flag" /> 
+        Сан-Хосе
+    </a>
+</div>
+<div class="camera controlled">
+    <a href="http://64.203.126.178/view/viewer_index.shtml" target="_blank">
+        <img src="https://upload.wikimedia.org/wikipedia/en/a/a4/Flag_of_the_United_States.svg" class="flag" /> 
+        Лос-Анджелес
+    </a>
+</div>
+<div class="camera controlled">
+    <a href="http://217.91.58.189/view/viewer_index.shtml?id=16864" target="_blank">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/Flag_of_Germany.svg/40px-Flag_of_Germany.svg.png" class="flag" />
+        Берлин
+    </a>
+</div>
+<div class="camera controlled">
+    <a href="http://82.198.194.150/view/index.shtml" target="_blank">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/Flag_of_Germany.svg/40px-Flag_of_Germany.svg.png" class="flag" />
+        Бремен
+    </a>
+</div>
+<div class="camera controlled">
+    <a href="http://185.144.75.107/view/viewer_index.shtml?id=20240" target="_blank">
+        <img src="https://upload.wikimedia.org/wikipedia/en/0/03/Flag_of_Italy.svg" class="flag" />
+        Варна
+    </a>
+</div>
+<div class="camera controlled">
+    <a href="http://78.134.65.233:8080/view/viewer_index.shtml?id=5626" target="_blank">
+        <img src="https://upload.wikimedia.org/wikipedia/en/0/03/Flag_of_Italy.svg" class="flag" />
+        Милан
+    </a>
+</div>
+<div class="camera controlled">
+    <a href="http://188.212.30.49/view/viewer_index.shtml?id=211" target="_blank">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/27/Flag_of_Moldova.svg/40px-Flag_of_Moldova.svg.png" class="flag" />
+        Кишинёв
+    </a>
+</div>
+<div class="camera controlled">
+    <a href="http://149.255.82.208/view/index.shtml" target="_blank">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Flag_of_the_Czech_Republic.svg/40px-Flag_of_the_Czech_Republic.svg.png" class="flag" />
+        Фридлант
+    </a>
+</div>
+</div>
+</div>
+
+    <h2>Обычные</h2>
+<div class="camera-list">
+    <div class="camera normal">
+        <a href="http://89.222.132.40/view/viewer_index.shtml?id=17754" target="_blank">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Flag_of_Russia.svg/40px-Flag_of_Russia.svg.png" class="flag" /> Москва
+        </a>
+    </div>
+    <div class="camera normal">
+        <a href="http://45.80.27.109/view/viewer_index.shtml?id=4" target="_blank">
+            <img src="https://upload.wikimedia.org/wikipedia/en/c/c3/Flag_of_France.svg" class="flag" /> Бове
+        </a>
+    </div>
+    <div class="camera normal">
+        <a href="http://198.244.125.230:8080/view/index.shtml" target="_blank">
+            <img src="https://upload.wikimedia.org/wikipedia/en/a/a4/Flag_of_the_United_States.svg" class="flag" /> Спаниш Спрингс
+        </a>
+    </div>
+    <div class="camera normal">
+        <a href="http://178.25.210.72/view/viewer_index.shtml?id=17155" target="_blank">
+            <img src="https://upload.wikimedia.org/wikipedia/en/b/ba/Flag_of_Germany.svg" class="flag" /> Фемарн
+        </a>
+    </div>
+    <div class="camera normal">
+        <a href="http://192.33.141.123/view/index.shtml" target="_blank">
+            <img src="https://upload.wikimedia.org/wikipedia/en/a/a4/Flag_of_the_United_States.svg" class="flag" /> Тусон
+        </a>
+    </div>
+    <div class="camera normal">
+        <a href="http://96.35.163.110/view/viewer_index.shtml" target="_blank">
+            <img src="https://upload.wikimedia.org/wikipedia/en/a/a4/Flag_of_the_United_States.svg" class="flag" /> Вудлон
+        </a>
+    </div>
+    <div class="camera normal">
+        <a href="http://80.120.177.18/view/viewer_index.shtml?id=11354" target="_blank">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Flag_of_Austria.svg/40px-Flag_of_Austria.svg.png" class="flag" /> Вена
+        </a>
+    </div>
+    <div class="camera normal">
+        <a href="http://76.190.79.50/view/index.shtml" target="_blank">
+            <img src="https://upload.wikimedia.org/wikipedia/en/a/a4/Flag_of_the_United_States.svg" class="flag" /> Македония
+        </a>
+    </div>
+    <div class="camera normal">
+        <a href="http://82.179.176.242/view/viewer_index.shtml?id=48486" target="_blank">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Flag_of_Russia.svg/40px-Flag_of_Russia.svg.png" class="flag" /> Москва
+        </a>
+    </div>
+    <div class="camera normal">
+        <a href="http://46.160.254.214/view/viewer_index.shtml?id=5444" target="_blank">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Flag_of_Russia.svg/40px-Flag_of_Russia.svg.png" class="flag" /> Королёв
+        </a>
+    </div>
+    <div class="camera normal">
+        <a href="http://91.233.230.14/view/viewer_index.shtml?id=87586" target="_blank">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Flag_of_Russia.svg/40px-Flag_of_Russia.svg.png" class="flag" /> Москва
+        </a>
+    </div>
+    <div class="camera normal">
+        <a href="http://185.97.165.78/view/index.shtml" target="_blank">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Flag_of_Russia.svg/40px-Flag_of_Russia.svg.png" class="flag" /> Санкт-Петербург
+        </a>
+    </div>
+    <div class="camera normal">
+        <a href="http://91.199.196.151/view/index.shtml" target="_blank">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Flag_of_Russia.svg/40px-Flag_of_Russia.svg.png" class="flag" /> Чехов
+        </a>
+    </div>
+    <div class="camera normal">
+        <a href="http://91.233.230.12/view/viewer_index.shtml?id=88136" target="_blank">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Flag_of_Russia.svg/40px-Flag_of_Russia.svg.png" class="flag" /> Москва
+        </a>
+    </div>
+    <div class="camera normal">
+        <a href="http://93.92.199.231/view/viewer_index.shtml?id=24960" target="_blank">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Flag_of_Russia.svg/40px-Flag_of_Russia.svg.png" class="flag" /> Санкт-Петербург
+        </a>
+    </div>
+    <div class="camera normal">
+        <a href="http://77.37.132.86/view/viewer_index.shtml?id=37420" target="_blank">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Flag_of_Russia.svg/40px-Flag_of_Russia.svg.png" class="flag" /> Москва
+        </a>
+    </div>
+    <div class="camera normal">
+        <a href="http://95.31.162.153:8080/view/viewer_index.shtml?id=268" target="_blank">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Flag_of_Russia.svg/40px-Flag_of_Russia.svg.png" class="flag" /> Москва
+        </a>
+    </div>
+    <div class="camera normal">
+        <a href="http://195.97.20.246/view/viewer_index.shtml?id=37747" target="_blank">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Flag_of_Greece.svg/40px-Flag_of_Greece.svg.png" class="flag" /> Пеания
+        </a>
+    </div>
+    <div class="camera normal">
+        <a href="http://100.37.56.87/view/viewer_index.shtml?id=9495" target="_blank">
+            <img src="https://upload.wikimedia.org/wikipedia/en/a/a4/Flag_of_the_United_States.svg" class="flag" /> Нью Йорк
+        </a>
+    </div>
+    <div class="camera normal">
+        <a href="http://216.14.224.51/view/viewer_index.shtml?id=20613" target="_blank">
+            <img src="https://upload.wikimedia.org/wikipedia/en/a/a4/Flag_of_the_United_States.svg" class="flag" /> Миссула
+        </a>
+    </div>
+    <div class="camera normal">
+        <a href="http://193.252.220.178/view/viewer_index.shtml?id=8493" target="_blank">
+            <img src="https://upload.wikimedia.org/wikipedia/en/c/c3/Flag_of_France.svg" class="flag" /> Париж
+        </a>
+    </div>
+    <div class="camera normal">
+        <a href="http://217.181.189.201/view/viewer_index.shtml?id=269" target="_blank">
+            <img src="https://upload.wikimedia.org/wikipedia/en/c/c3/Flag_of_France.svg" class="flag" /> Париж
+        </a>
+    </div>
+    <div class="camera normal">
+        <a href="http://82.67.29.32/view/index.shtml" target="_blank">
+            <img src="https://upload.wikimedia.org/wikipedia/en/c/c3/Flag_of_France.svg" class="flag" /> Париж
+        </a>
+    </div>
+    <div class="camera normal">
+        <a href="http://80.243.36.3/view/viewer_index.shtml?id=33759" target="_blank">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/Flag_of_Germany.svg/40px-Flag_of_Germany.svg.png" class="flag" /> Шнееберг
+        </a>
+    </div>
+    <div class="camera normal">
+        <a href="http://87.140.30.24/view/index.shtml" target="_blank">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/Flag_of_Germany.svg/40px-Flag_of_Germany.svg.png" class="flag" /> Берлин
+        </a>
+    </div>
+    <div class="camera normal">
+        <a href="http://91.25.193.236/view/viewer_index.shtml?id=15498" target="_blank">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/Flag_of_Germany.svg/40px-Flag_of_Germany.svg.png" class="flag" /> Кёльн
+        </a>
+    </div>
+    <div class="camera normal">
+        <a href="http://88.53.197.250/view/viewer_index.shtml?id=2425" target="_blank">
+            <img src="https://upload.wikimedia.org/wikipedia/en/0/03/Flag_of_Italy.svg" class="flag" /> Мессина
+        </a>
+    </div>
+    <div class="camera normal">
+        <a href="http://46.141.57.188/view/index.shtml" target="_blank">
+            <img src="https://upload.wikimedia.org/wikipedia/en/0/03/Flag_of_Italy.svg" class="flag" /> Верона
+        </a>
+    </div>
+    <div class="camera normal">
+        <a href="http://84.247.217.68/view/viewer_index.shtml?id=2802" target="_blank">
+            <img src="https://upload.wikimedia.org/wikipedia/en/0/03/Flag_of_Italy.svg" class="flag" /> Брешиа
+        </a>
+    </div>
+    <div class="camera normal">
+        <a href="http://61.220.233.221/view/viewer_index.shtml?id=92023" target="_blank">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Flag_of_the_Republic_of_China.svg/40px-Flag_of_the_Republic_of_China.svg.png" class="flag" /> Тайюань
+        </a>
+    </div>
+    <div class="camera normal">
+        <a href="http://86.47.88.163/view/index.shtml" target="_blank">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/Flag_of_Ireland.svg/40px-Flag_of_Ireland.svg.png" class="flag" /> Дублин
+        </a>
+    </div>
+    <div class="camera normal">
+        <a href="http://196.21.92.209/view/index.shtml" target="_blank">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/af/Flag_of_South_Africa.svg/40px-Flag_of_South_Africa.svg.png" class="flag" /> Кейптаун
+        </a>
+    </div>
+    <div class="camera normal">
+        <a href="http://193.87.9.22/view/index.shtml" target="_blank">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/Flag_of_Slovakia.svg/40px-Flag_of_Slovakia.svg.png" class="flag" /> Братислава
+        </a>
+    </div>
+    <div class="camera normal">
+        <a href="http://85.237.244.99/view/viewer_index.shtml?id=1729" target="_blank">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/Flag_of_Slovakia.svg/40px-Flag_of_Slovakia.svg.png" class="flag" /> Братислава
+        </a>
+    </div>
+    <div class="camera normal">
+        <a href="http://193.224.128.90/view/viewer_index.shtml?id=41746" target="_blank">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Flag_of_Hungary.svg/40px-Flag_of_Hungary.svg.png" class="flag" /> Будапешт
+        </a>
+    </div>
+    <div class="camera normal">
+        <a href="http://87.92.9.136/view/viewer_index.shtml?id=20749" target="_blank">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Flag_of_Finland.svg/40px-Flag_of_Finland.svg.png" class="flag" /> Хельсинки
+        </a>
+    </div>
+    <div class="camera normal">
+        <a href="http://192.130.139.29/view/viewer_index.shtml" target="_blank">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Flag_of_Finland.svg/40px-Flag_of_Finland.svg.png" class="flag" /> Хельсинки
+        </a>
+    </div>
+    <div class="camera normal">
+        <a href="http://213.226.18.156/view/viewer_index.shtml?id=1658" target="_blank">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Flag_of_Bulgaria.svg/40px-Flag_of_Bulgaria.svg.png" class="flag" /> София
+        </a>
+    </div>
+    <div class="camera normal">
+        <a href="http://62.242.189.218/view/index.shtml" target="_blank">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Flag_of_Denmark.svg/40px-Flag_of_Denmark.svg.png" class="flag" /> Оденсе
+        </a>
+    </div>
+    <div class="camera normal">
+        <a href="http://80.62.172.130/view/viewer_index.shtml?id=39360" target="_blank">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Flag_of_Denmark.svg/40px-Flag_of_Denmark.svg.png" class="flag" /> Копенгаген
+        </a>
+    </div>
+    <div class="camera normal">
+        <a href="http://85.202.156.79/view/viewer_index.shtml?id=100" target="_blank">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/Flag_of_Poland.svg/40px-Flag_of_Poland.svg.png" class="flag" /> Ченстохова
+        </a>
+    </div>
+    <div class="camera normal">
+        <a href="http://81.26.28.141/view/index.shtml" target="_blank">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/Flag_of_Poland.svg/40px-Flag_of_Poland.svg.png" class="flag" /> Кельце
+        </a>
+    </div>
+    <div class="camera normal">
+        <a href="http://210.249.39.229/view/index.shtml" target="_blank">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Flag_of_Japan.svg/40px-Flag_of_Japan.svg.png" class="flag" /> Токио
+        </a>
+    </div>
+    <div class="camera normal">
+        <a href="http://203.141.204.87/view/viewer_index.shtml?id=16354" target="_blank">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Flag_of_Japan.svg/40px-Flag_of_Japan.svg.png" class="flag" /> Татсуно
+        </a>
+    </div>
+    <div class="camera normal">
+        <a href="http://217.36.68.34/view/viewer_index.shtml?id=2535" target="_blank">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/be/Flag_of_England.svg/40px-Flag_of_England.svg.png" class="flag" /> Банбери
+        </a>
+    </div>
+    <div class="camera normal">
+        <a href="http://82.71.13.178:8080/view/viewer_index.shtml?id=10584" target="_blank">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/be/Flag_of_England.svg/40px-Flag_of_England.svg.png" class="flag" /> Рочдейл
+        </a>
+    </div>
+    <div class="camera normal">
+        <a href="http://86.63.39.58:8080/view/index.shtml" target="_blank">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/be/Flag_of_England.svg/40px-Flag_of_England.svg.png" class="flag" /> Райд
+        </a>
+    </div>
+    <div class="camera normal">
+        <a href="http://146.199.0.39/view/viewer_index.shtml?id=8872" target="_blank">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/be/Flag_of_England.svg/40px-Flag_of_England.svg.png" class="flag" /> Пьюси
+        </a>
+    </div>
+    <div class="camera normal">
+        <a href="http://192.186.93.218:8080/view/viewer_index.shtml" target="_blank">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Flag_of_Canada_%28Pantone%29.svg/40px-Flag_of_Canada_%28Pantone%29.svg.png" class="flag" /> Парри Саунд
+        </a>
+    </div>
+       <div class="camera normal">
+        <a href="http://174.142.191.187/view/view.shtml#" target="_blank">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Flag_of_Canada_%28Pantone%29.svg/40px-Flag_of_Canada_%28Pantone%29.svg.png" class="flag" /> Кот-Сен-Люк
+        </a>
+    </div>
+    <div class="camera normal">
+        <a href="http://216.223.114.71/view/viewer_index.shtml?id=1369" target="_blank">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Flag_of_Canada_%28Pantone%29.svg/40px-Flag_of_Canada_%28Pantone%29.svg.png" class="flag" /> Грейтер-Садбери
+        </a>
+    </div>
+    <div class="camera normal">
+        <a href="http://77.175.11.168/view/viewer_index.shtml?id=7896" target="_blank">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/20/Flag_of_the_Netherlands.svg/40px-Flag_of_the_Netherlands.svg.png" class="flag" /> Нарден
+        </a>
+    </div>
+    <div class="camera normal">
+        <a href="http://213.184.105.60/view/viewer_index.shtml?id=35814" target="_blank">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/20/Flag_of_the_Netherlands.svg/40px-Flag_of_the_Netherlands.svg.png" class="flag" /> Кудекерке
+        </a>
+    </div>
+    <div class="camera normal">
+        <a href="http://86.92.91.44/view/viewer_index.shtml?id=31318" target="_blank">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/20/Flag_of_the_Netherlands.svg/40px-Flag_of_the_Netherlands.svg.png" class="flag" /> 'с-Гравензанде
+        </a>
+    </div>
+    <div class="camera normal">
+        <a href="http://213.124.95.98:8080/view/index.shtml" target="_blank">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/20/Flag_of_the_Netherlands.svg/40px-Flag_of_the_Netherlands.svg.png" class="flag" /> Хёйзен
+        </a>
+    </div>
+    <div class="camera normal">
+        <a href="http://62.77.122.122/view/viewer_index.shtml?id=1354" target="_blank">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Flag_of_the_Czech_Republic.svg/40px-Flag_of_the_Czech_Republic.svg.png" class="flag" /> Нови-Йичин
+        </a>
+    </div>
+    <div class="camera normal">
+        <a href="http://90.181.209.149/view/viewer_index.shtml?id=3429" target="_blank">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Flag_of_the_Czech_Republic.svg/40px-Flag_of_the_Czech_Republic.svg.png" class="flag" /> Прага
+        </a>
+    </div>
+    <div class="camera normal">
+        <a href="http://77.48.31.68/view/index.shtml" target="_blank">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Flag_of_the_Czech_Republic.svg/40px-Flag_of_the_Czech_Republic.svg.png" class="flag" /> Острава
+        </a>
+    </div>
+    <div class="camera normal">
+        <a href="http://86.49.161.121/view/viewer_index.shtml?id=2930" target="_blank">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Flag_of_the_Czech_Republic.svg/40px-Flag_of_the_Czech_Republic.svg.png" class="flag" /> Острава
+        </a>
+    </div>
+</div>
+    </div>
+
+    <h2>Статичные</h2>
+    <div class="camera-list" id="refreshing-cameras">
+        <div class="camera refreshing">
+            <a href="http://210.128.30.197:8888/-wvhttp-01-/image.cgi?v=jpg:640x360" target="_blank">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Flag_of_Japan.svg/40px-Flag_of_Japan.svg.png" class="flag" /> 
+                Токио
+            </a>
+        </div>
+        <div class="camera refreshing">
+            <a href="http://182.236.10.57/-wvhttp-01-/image.cgi?v=jpg:960" target="_blank">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Flag_of_Japan.svg/40px-Flag_of_Japan.svg.png" class="flag" /> 
+                Токио
+            </a>
+        </div>
+    </div>
